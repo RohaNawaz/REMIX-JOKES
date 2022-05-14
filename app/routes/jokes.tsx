@@ -8,10 +8,15 @@ export const links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: stylesUrl }];
 };
 
-type LoaderData = {jokes: Array<Joke>}
+type LoaderData = { jokeListItems : Array<Pick<Joke, "id" | "name" >> };
 export let loader: LoaderFunction = async () => {
-  let jokes = await db.joke.findMany();
-  let data: LoaderData = {jokes};
+  let jokeListItems = await db.joke.findMany({
+    take: 5,
+      select: { id: true, name: true },
+      orderBy: { createdAt: "desc" },
+  });
+  console.log(jokeListItems)
+  let data: LoaderData = { jokeListItems };
   return data;
 }
 
@@ -39,7 +44,7 @@ export default function JokesRoute() {
             <Link to=".">Get a random joke</Link>
             <p>Here are a few more jokes to check out:</p>
             <ul>
-              {data.jokes.map( (j) => (
+              {data.jokeListItems.map( (j) => (
                 <li key={j.id}>
                 <Link to={j.id}>{j.name}</Link>
                 </li>
